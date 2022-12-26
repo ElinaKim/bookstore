@@ -25,3 +25,7 @@ def update_author(id):
 @app.route("/api/authors", methods = ['GET'])
 def get_all_authors():
     return "All authors"
+
+@app.route("/api/authors/<id>", methods = ['GET'])
+def get_author(id):
+    return id
