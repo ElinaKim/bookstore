@@ -45,3 +45,11 @@ def create_book():
     name = book['name']
     
     return name
+
+@app.route("/api/books/<id>", methods = ["PUT"])
+def update_book(id):
+    book = request.json
+
+    name = book['name']
+
+    return name
