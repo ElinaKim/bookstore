@@ -37,3 +37,11 @@ def get_all_books():
 @app.route("/api/books/<id>", methods = ["GET"])
 def get_book(id):
     return id
+
+@app.route("/api/books", methods = ["POST"])
+def create_book():
+    book = request.json
+    
+    name = book['name']
+    
+    return name
