@@ -29,3 +29,7 @@ def get_all_authors():
 @app.route("/api/authors/<id>", methods = ['GET'])
 def get_author(id):
     return id
+
+@app.route("/api/books", methods = ["GET"])
+def get_all_books():
+    return "All books"
