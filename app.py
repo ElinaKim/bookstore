@@ -41,7 +41,7 @@ def delete_author(id):
     cur.execute("DELETE FROM authors WHERE id = (%s) RETURNING id",(id))
     records = cur.fetchall()
 
-    return {'authors': records}, 202
+    return {'authors': records}, 200
     
 @app.route("/api/authors", methods = ['GET'])
 def get_all_authors():
@@ -62,12 +62,14 @@ def get_author(id):
 
 @app.route("/api/books", methods = ["GET"])
 def get_all_books():
-
-    return "All books"
+    cur = conn.cursor()
+    cur.execute("SELECT id, name FROM books")
+    records = cur.fetchall()
+    return {'authors': records}, 200
 
 @app.route("/api/books/<id>", methods = ["GET"])
 def get_book(id):
-    
+
     return id
 
 @app.route("/api/books", methods = ["POST"])
