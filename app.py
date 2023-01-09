@@ -69,8 +69,10 @@ def get_all_books():
 
 @app.route("/api/books/<id>", methods = ["GET"])
 def get_book(id):
-
-    return id
+    cur = conn.cursor()
+    cur.execute("SELECT name FROM books WHERE id = %s",(id))
+    records = cur.fetchone()
+    return {'authors': records}, 200
 
 @app.route("/api/books", methods = ["POST"])
 def create_book():
