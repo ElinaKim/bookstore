@@ -80,7 +80,11 @@ def create_book():
     
     name = book['name']
     
-    return name
+    cur = conn.cursor()
+    cur.execute("INSERT INTO books (name) VALUES (%s) RETURNING id",(name,))
+    records = cur.fetchall()
+
+    return {'authors': records}, 201
 
 @app.route("/api/books/<id>", methods = ["PUT"])
 def update_book(id):
