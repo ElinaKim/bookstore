@@ -4,7 +4,15 @@ import psycopg2
 app = Flask(__name__)
 
 conn_str = "postgres://postgres:postgrespw@localhost:55000/bookstore"
-conn = psycopg2.connect(conn_str)
+
+try:
+    conn = psycopg2.connect(conn_str)
+except psycopg2.Error as e:
+    print("Unable to connect to the database.")
+    print(e)
+else:
+    print("Connection to the database was successful.")
+
 
 
 @app.route("/")
