@@ -65,14 +65,16 @@ def get_all_books():
     cur = conn.cursor()
     cur.execute("SELECT id, name FROM books")
     records = cur.fetchall()
-    return {'authors': records}, 200
+    
+    return {'books': records}, 200
 
 @app.route("/api/books/<id>", methods = ["GET"])
 def get_book(id):
     cur = conn.cursor()
     cur.execute("SELECT name FROM books WHERE id = %s",(id))
     records = cur.fetchone()
-    return {'authors': records}, 200
+
+    return {'books': records}, 200
 
 @app.route("/api/books", methods = ["POST"])
 def create_book():
@@ -84,7 +86,7 @@ def create_book():
     cur.execute("INSERT INTO books (name) VALUES (%s) RETURNING id",(name,))
     records = cur.fetchall()
 
-    return {'authors': records}, 201
+    return {'books': records}, 201
 
 @app.route("/api/books/<id>", methods = ["PUT"])
 def update_book(id):
@@ -92,4 +94,16 @@ def update_book(id):
 
     name = book['name']
 
-    return name
+    cur = conn.cursor()
+    cur.execute("UPDATE books SET name = (%s) WHERE id = (%s) RETURNING id", (name, id))
+    records = cur.fetchall()
+
+    return {'books': records}, 200
+
+@app.route("/api/books/<id>",methods = ["DELETE"])
+def delete_book(id):
+    cur = conn.cursor()
+    cur.execute("DELETE FROM books WHERE id = (%s) RETURNING id", (id))
+    records = cur.fetchall()
+
+    return {'books': records}, 200
