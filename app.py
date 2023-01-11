@@ -1,4 +1,4 @@
-from flask import Flask, request
+from flask import Flask, request, abort
 import psycopg2
 
 app = Flask(__name__)
@@ -12,8 +12,6 @@ except psycopg2.Error as e:
     print(e)
 else:
     print("Connection to the database was successful.")
-
-
 
 @app.route("/")
 def index():
@@ -84,11 +82,15 @@ def get_all_books():
 
 @app.route("/api/books/<id>", methods = ["GET"])
 def get_book(id):
+    if int(id) <= 0:
+        return abort(400, description="Invalid id in the Request-URI")
     with conn:
         with conn.cursor() as curs:
             curs.execute("SELECT name FROM books WHERE id = %s",(id))
             records = curs.fetchone()
-
+            if records == None:
+                return abort(404, description="The server has not found book name matching the Request-URI")
+    
     return {'books': records}, 200
 
 @app.route("/api/books", methods = ["POST"])
