@@ -1,9 +1,17 @@
 from flask import Flask, request, abort
+from db import BookRepository
 import psycopg2
 
 app = Flask(__name__)
 
-conn_str = "postgres://postgres:postgrespw@localhost:55000/bookstore"
+bookRepo = BookRepository()
+
+# Sequence of events:
+# app.py -> bookRepo.getAllBooks() -> self.db.__enter__() -> db.connect() -> curs.execute(...) -> result -> db.__exit__()
+
+## TODO: Move to env file
+## TODO: Create repository pattern
+conn_str = "postgres://postgres:postgrespw@localhost:49153/bookstore"
 
 try:
     conn = psycopg2.connect(conn_str)
@@ -28,7 +36,7 @@ def create_author():
 
     with conn:
         with conn.cursor() as curs:
-            curs.execute("INSERT INTO authors (name) VALUES (%s) RETURNING id",(name,))
+            curs.execute("INSERT INTO authors (name) VALUES (%s) RETURNING id", (name,))
             id = curs.fetchone()
 
     return {'id': id, 'message': f'author {name} was added'}, 201
@@ -87,27 +95,20 @@ def get_author(id):
 
 @app.route("/api/books", methods = ["GET"])
 def get_all_books():
-    with conn:
-        with conn.cursor() as curs:
-            curs.execute("SELECT id, name FROM books")
-            records = curs.fetchall()
-            if records == None: 
-                return abort(404, description = "No books can be found")
+    books = bookRepo.getAllBooks()
 
-    return {'books': records}, 200
+    return {'books': books}, 200
 
 @app.route("/api/books/<id>", methods = ["GET"])
 def get_book(id):
     if int(id) <= 0:
         return abort(400, description="Invalid id in the Request-URI")
-    with conn:
-        with conn.cursor() as curs:
-            curs.execute("SELECT name FROM books WHERE id = %s",(id))
-            records = curs.fetchone()
-            if records == None:
-                return abort(404, description="The server has not found book name matching the Request-URI")
-    
-    return {'books': records}, 200
+
+    book = bookRepo.getBook(id)
+    if (book == None):
+        return abort(404, description="The server has not found book name matching the Request-URI")
+
+    return {'books': book}, 200
 
 @app.route("/api/books", methods = ["POST"])
 def create_book():
@@ -118,10 +119,7 @@ def create_book():
     if name == None or len(name) == 0 or name.isspace() == True:
         return abort(400, description = "Invalid book name")
     
-    with conn:
-        with conn.cursor() as curs:
-            curs.execute("INSERT INTO books (name) VALUES (%s) RETURNING id",(name,))
-            id = curs.fetchone()[0]
+    id = bookRepo.addBook(name)
 
     return {'id': id, 'message': f'{name} book was added'}, 201
 
