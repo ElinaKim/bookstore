@@ -1,10 +1,12 @@
 from flask import Flask, request, abort
 from db import BookRepository
+from db import AuthorRepository
 import psycopg2
 
 app = Flask(__name__)
 
 bookRepo = BookRepository()
+authorRepo = AuthorRepository()
 
 # Sequence of events:
 # app.py -> bookRepo.getAllBooks() -> self.db.__enter__() -> db.connect() -> curs.execute(...) -> result -> db.__exit__()
@@ -83,14 +85,12 @@ def get_all_authors():
 def get_author(id):
     if int(id) <= 0:
         return abort(400, description="Invalid id in the Request-URI")
-    with conn:
-        with conn.cursor() as curs:
-            curs.execute("SELECT name FROM authors WHERE id = %s",(id))
-            records = curs.fetchone()
-            if records == None:
-                return abort(404, description = "No author with such id can be found")
 
-    return {'author': records}, 200
+    authors = authorRepo.getAuthor(id)
+    if authors == None:
+        return abort(404, description = "No author with such id can be found")
+
+    return {'author': authors}, 200
 
 
 @app.route("/api/books", methods = ["GET"])

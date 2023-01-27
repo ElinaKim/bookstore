@@ -3,7 +3,7 @@ from psycopg2 import Error
 
 class Db:
     def __init__(self):
-        self.conn_str = "postgres://postgres:postgrespw@localhost:49153/bookstore"
+        self.conn_str = "postgres://postgres:postgrespw@localhost:55000/bookstore"
         self.conn = None
         self.curs = None
     
