@@ -1,9 +1,11 @@
 import psycopg2
 from psycopg2 import Error
+import os
 
 class Db:
     def __init__(self):
-        self.conn_str = "postgres://postgres:postgrespw@localhost:55000/bookstore"
+        self.conn_str = os.getenv("CONN_STR")
+        print(self.conn_str)
         self.conn = None
         self.curs = None
     

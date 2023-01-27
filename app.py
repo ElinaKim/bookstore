@@ -1,9 +1,14 @@
 from flask import Flask, request, abort
 from db import BookRepository
 from db import AuthorRepository
+from dotenv import load_dotenv
+import os
 import psycopg2
 
+
+load_dotenv()
 app = Flask(__name__)
+
 
 bookRepo = BookRepository()
 authorRepo = AuthorRepository()
@@ -13,8 +18,7 @@ authorRepo = AuthorRepository()
 
 ## TODO: Move to env file
 ## TODO: Create repository pattern
-conn_str = "postgres://postgres:postgrespw@localhost:49153/bookstore"
-
+conn_str = os.getenv("CONN_STR")
 try:
     conn = psycopg2.connect(conn_str)
 except psycopg2.Error as e:
