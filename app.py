@@ -40,10 +40,7 @@ def create_author():
     if name == None or len(name) == 0 or name.isspace() == True:
         return abort(400, description = "Invalid author name")
 
-    with conn:
-        with conn.cursor() as curs:
-            curs.execute("INSERT INTO authors (name) VALUES (%s) RETURNING id", (name,))
-            id = curs.fetchone()
+    authors = authorRepo.addAuthor(name)
 
     return {'id': id, 'message': f'author {name} was added'}, 201
 
@@ -58,9 +55,7 @@ def update_author(id):
     if name == None or len(name) == 0 or name.isspace() == True:
         abort(400, "Invalid author name")
 
-    with conn:
-        with conn.cursor() as curs:
-            curs.execute("UPDATE authors SET name = (%s) WHERE id = (%s) RETURNING id", (name, id))
+    authors = authorRepo.updateAuthor(name, id)
 
     return {'id': id, 'message': f'Author {name} was updated'}, 200
 
@@ -68,22 +63,20 @@ def update_author(id):
 def delete_author(id):
     if int(id) <= 0:
         return abort(400, description="Invalid id in the Request-URI")
-    with conn:
-        with conn.cursor() as curs:
-            curs.execute("DELETE FROM authors WHERE id = (%s) RETURNING id",(id))
+    
+    authors = authorRepo.deleteAuthor(id)
 
     return {'id': id, 'message': f'author with id {id} was deleted'}, 200
     
 @app.route("/api/authors", methods = ['GET'])
 def get_all_authors():
-    with conn:
-        with conn.cursor() as curs:
-            curs.execute("SELECT id, name FROM authors")
-            records = curs.fetchall()
-            if records == None:
-                return abort(404, description = "No authors can be found")
 
-    return {'authors': records}, 200
+    authors = authorRepo.getAllAuthors()
+    
+    if authors == None:
+        return abort(404, description = "No authors can be found")
+
+    return {'authors': authors}, 200
 
 @app.route("/api/authors/<id>", methods = ['GET'])
 def get_author(id):
@@ -91,6 +84,7 @@ def get_author(id):
         return abort(400, description="Invalid id in the Request-URI")
 
     authors = authorRepo.getAuthor(id)
+
     if authors == None:
         return abort(404, description = "No author with such id can be found")
 
@@ -139,9 +133,7 @@ def update_book(id):
     if name == None or len(name) == 0 or name.isspace == True:
         return abort(400, description = "Invalid book name")
 
-    with conn:
-        with conn.cursor() as curs:
-            curs.execute("UPDATE books SET name = (%s) WHERE id = (%s) RETURNING id", (name, id))
+    id = bookRepo.updateBook(name, id)
 
     return {'id': id, 'message': f'{name} book was updated'}, 200
 
@@ -149,8 +141,7 @@ def update_book(id):
 def delete_book(id):
     if int(id) <= 0:
         return abort(400, description="Invalid id in the Request-URI")
-    with conn:
-        with conn.cursor() as curs:
-            curs.execute("DELETE FROM books WHERE id = (%s) RETURNING id", (id))
+
+    id = bookRepo.deleteBook(id)
 
     return {'id': id, 'message': f'book with id {id} was deleted.'}, 200
