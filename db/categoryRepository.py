@@ -5,12 +5,12 @@ class CategoryRepository:
         self.db = db.Db()
 
     def getAllCategories(self):
-        query = "SELECT books.name AS book_name, category.name AS category_name FROM book_category INNER JOIN books ON book_category.book_id = books.id INNER JOIN category ON book_category.category_id = category.id"
+        query = "SELECT * FROM category"
         with self.db:
             return self.db.query_all(query,)
 
     def getCategory(self, id):
-        query = "SELECT category.name AS category_name, books.name AS book_name FROM book_category INNER JOIN books ON book_category.book_id = books.id INNER JOIN category ON book_category.category_id = category.id WHERE category.id = %s"
+        query = "SELECT name FROM category WHERE id = %s"
         with self.db:
             return self.db.query_one(query,(id,))
     
