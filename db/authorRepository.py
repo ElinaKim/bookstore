@@ -12,7 +12,7 @@ class AuthorRepository():
     def getAllAuthors(self):
         query = "SELECT * FROM authors"
         with self.db:
-            return self.db.query_all(query)
+            return self.db.query_all(query,)
 
     def addAuthor(self, name):
         query = "INSERT INTO authors (name) VALUES (%s) RETURNING id"
@@ -28,6 +28,7 @@ class AuthorRepository():
         query = "DELETE FROM authors WHERE id = (%s) RETURNING id"
         with self.db:
             return self.db.query_one(query, (id))
+    
 
 
 

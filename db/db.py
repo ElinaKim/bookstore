@@ -27,13 +27,13 @@ class Db:
         print("exiting context manager")
         self.conn.close()
 
-    def query_all(self, query, params):
+    def query_all(self, query, params = None):
         with self.conn:
             with self.conn.cursor() as curs:
                 curs.execute(query, params)
                 return curs.fetchall()
     
-    def query_one(self, query, params):
+    def query_one(self, query, params = None):
         with self.conn:
             with self.conn.cursor() as curs:
                 curs.execute(query, params)

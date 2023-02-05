@@ -1,6 +1,7 @@
 from flask import Flask, request, abort
 from db import BookRepository
 from db import AuthorRepository
+from db import CategoryRepository
 from dotenv import load_dotenv
 import os
 import psycopg2
@@ -12,6 +13,7 @@ app = Flask(__name__)
 
 bookRepo = BookRepository()
 authorRepo = AuthorRepository()
+categoryRepo = CategoryRepository()
 
 # Sequence of events:
 # app.py -> bookRepo.getAllBooks() -> self.db.__enter__() -> db.connect() -> curs.execute(...) -> result -> db.__exit__()
@@ -145,3 +147,58 @@ def delete_book(id):
     id = bookRepo.deleteBook(id)
 
     return {'id': id, 'message': f'book with id {id} was deleted.'}, 200
+
+@app.route("/api/categories", methods = ["GET"])
+def get_categories():
+    categories = categoryRepo.getAllCategories()
+
+    if categories == None:
+        return abort(404, description = 'No book categories could be found.')
+    
+    return {'categories': categories}, 200
+
+@app.route("/api/categories/<id>", methods = ["GET"])
+def get_category(id):
+    if int(id) <= 0:
+        return abort(400, description = "Invalid id in the Request-URI")
+    
+    category = categoryRepo.getCategory(id)
+
+    return {'category': category}, 200
+
+@app.route("/api/categories", methods = ["POST"])
+def add_category():
+    category = request.get_json()
+    name = category['name']
+
+    if name == None or len(name) == 0 or name.isspace() == True:
+        return abort(400, description = 'No name was inserted.')
+    
+    id = categoryRepo.addCategory(name)
+
+    return {'id': id, 'message': f'Category {name} was added.'}
+
+@app.route("/api/categories/<id>", methods = ["PUT"])
+def update_category(id):
+    if int(id) <= 0:
+        return abort(400, description = "Invalid id in the Request-URI")
+
+    category = request.get_json()
+    name = category['name']
+
+    id = categoryRepo.updateCategory(name, id)
+
+    return {'id': id, 'message': f'{name} category was updated'}
+
+@app.route("/api/categories/<id>", methods = ["DELETE"])
+def delete_category(id):
+    if int (id) <= 0:
+        return abort(400, description = "Invalid id in the Request-URI")
+
+    id = categoryRepo.deleteCategory(id)
+
+    return {'id': id, 'message': f'category with id {id} was deleted.'}, 200
+
+
+
+
